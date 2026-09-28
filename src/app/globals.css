@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-deep-navy: #07192F;
+    --color-institutional-navy: #0B2546;
+    --color-royal-navy: #12365F;
+    --color-gold-primary: #CAA24C;
+    --color-gold-light: #E8CB7A;
+    --color-gold-champagne: #F0D58A;
+    --color-ivory: #F7F3E9;
+    --color-text-main: #0E1D2D;
+    --color-text-secondary: #617084;
+  }
+
+  body {
+    @apply bg-wbre-deepNavy text-slate-100 font-sans antialiased selection:bg-wbre-primaryGold/30 selection:text-wbre-lightGold;
+  }
+
+  h1, h2, h3, h4, .font-serif {
+    font-feature-settings: "liga" 1, "dlig" 1;
+    letter-spacing: -0.015em;
+  }
+}
+
+/* Institutional Security Grid & Lat/Long Background */
+.bg-grid-pattern {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(202, 162, 76, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(202, 162, 76, 0.04) 1px, transparent 1px);
+}
+
+.bg-globe-radial {
+  background: radial-gradient(circle at 50% 35%, rgba(18, 54, 95, 0.7) 0%, rgba(7, 25, 47, 1) 75%);
+}
+
+.bg-gold-radial-light {
+  background: radial-gradient(circle at 50% 50%, rgba(202, 162, 76, 0.18) 0%, rgba(202, 162, 76, 0.03) 45%, transparent 70%);
+}
+
+/* Metallic Gold Typography & Border Styling */
+.gold-text-gradient {
+  background: linear-gradient(135deg, #F0D58A 0%, #CAA24C 50%, #E8CB7A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-border-gradient {
+  border-image: linear-gradient(135deg, #CAA24C, #F0D58A, #CAA24C) 1;
+}
+
+/* Glassmorphism Styles */
+.glass-navy {
+  background: rgba(11, 37, 70, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(202, 162, 76, 0.15);
+}
+
+.glass-navy-subtle {
+  background: rgba(7, 25, 47, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(202, 162, 76, 0.12);
+}
+
+/* Certificate Archival Frame */
+.certificate-frame {
+  border: 12px double #CAA24C;
+  box-shadow: 0 0 0 2px #07192F, 0 0 0 6px #CAA24C;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #07192F;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #12365F;
+  border-radius: 4px;
+  border: 1px solid rgba(202, 162, 76, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #CAA24C;
+}
