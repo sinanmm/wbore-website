@@ -150,18 +150,32 @@ export default async function RecordDetailPage({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             {/* Left Main Column: Dossier Details, Evidence, Gallery */}
             <div className="lg:col-span-8 space-y-12">
-              {/* Featured Visual */}
+              {/* Featured Ceremony Certificate Visual */}
               {record.featuredImage && (
-                <div className="relative h-80 sm:h-96 w-full rounded-2xl overflow-hidden border border-wbre-primaryGold/30 shadow-premium-card bg-wbre-surfaceDarker">
-                  <Image
-                    src={record.featuredImage}
-                    alt={record.title}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 800px"
-                    className="object-cover"
-                    priority
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-wbre-deepNavy/80 via-transparent to-transparent" />
+                <div className="space-y-3">
+                  <div className="relative aspect-[3/4] max-w-xl mx-auto w-full rounded-2xl overflow-hidden border-2 border-wbre-primaryGold/40 shadow-gold-glow bg-wbre-surfaceDarker group">
+                    <Image
+                      src={record.featuredImage}
+                      alt={record.title}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 680px"
+                      className="object-contain sm:object-cover sm:object-[center_16%]"
+                      priority
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/25 pointer-events-none" />
+
+                    <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs pointer-events-none">
+                      <span className="font-mono text-[11px] font-semibold text-wbre-lightGold bg-wbre-deepNavy/95 px-3 py-1 rounded-md border border-wbre-primaryGold/40 shadow-md">
+                        {record.recordId}
+                      </span>
+                      <span className="text-[11px] text-slate-300 bg-wbre-deepNavy/90 px-3 py-1 rounded-md border border-white/10 backdrop-blur-sm">
+                        Official Ratification Ceremony
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-center text-xs text-slate-400">
+                    World Book of Record Excellence official certificate presentation ceremony
+                  </p>
                 </div>
               )}
 
