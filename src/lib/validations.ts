@@ -53,6 +53,9 @@ export const ApplicationStatuses = [
 ] as const;
 
 export const ApplicationFormSchema = z.object({
+  // Draft tracking ID (if pre-initialized during evidence upload)
+  applicationId: z.string().optional(),
+
   // Step 1: Applicant Information
   applicantType: z.enum(ApplicantTypes, {
     required_error: "Please select an applicant type",
@@ -84,6 +87,20 @@ export const ApplicationFormSchema = z.object({
   // Step 4: Evidence Plan
   evidencePlan: z.array(z.string()).min(1, "Please select at least one planned evidence method"),
   additionalNotes: z.string().optional(),
+  uploadedFiles: z
+    .array(
+      z.object({
+        id: z.string().optional(),
+        name: z.string(),
+        url: z.string(),
+        key: z.string().optional(),
+        size: z.number(),
+        type: z.string(),
+        category: z.string().optional(),
+        provider: z.string().optional(),
+      })
+    )
+    .optional(),
 
   // Step 5: Declarations
   acceptTerms: z.literal(true, {

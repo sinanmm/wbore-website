@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -10,6 +10,7 @@ import {
   ApplicationFormData,
 } from "@/lib/validations";
 import { WBRE_CONFIG } from "@/lib/config";
+import { EvidenceUploadBox, UploadedEvidenceItem } from "./EvidenceUploadBox";
 import {
   User,
   FileText,
@@ -42,6 +43,61 @@ export function MultiStepApplyWizard() {
   const [submittedAppId, setSubmittedAppId] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [draftId, setDraftId] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("wbre_active_draft_app_id");
+      if (saved) return saved;
+    }
+    return `draft-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  });
+
+  // Keep draftId in localStorage so page refresh preserves uploaded files
+  useEffect(() => {
+    if (typeof window !== "undefined" && draftId) {
+      localStorage.setItem("wbre_active_draft_app_id", draftId);
+    }
+  }, [draftId]);
+
+  // Restore previously uploaded evidence from server if refreshing page
+  useEffect(() => {
+    let isMounted = true;
+    const restoreUploadedEvidence = async () => {
+      try {
+        if (!draftId) return;
+        const res = await fetch(`/api/applications/${encodeURIComponent(draftId)}/evidence`);
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted && data.success && Array.isArray(data.evidences) && data.evidences.length > 0) {
+            setFormData((prev) => {
+              if (prev.uploadedFiles.length === 0) {
+                const restored: UploadedEvidenceItem[] = data.evidences.map((ev: any) => ({
+                  id: ev.id,
+                  name: ev.originalName || ev.fileName,
+                  url: ev.fileUrl,
+                  key: ev.fileName,
+                  size: ev.fileSize,
+                  type: ev.fileType,
+                  category: ev.evidenceCategory,
+                  provider: ev.storageProvider,
+                  status: "uploaded",
+                  uploadProgress: 100,
+                }));
+                return { ...prev, uploadedFiles: restored };
+              }
+              return prev;
+            });
+          }
+        }
+      } catch (err) {
+        console.warn("Could not retrieve prior draft evidence:", err);
+      }
+    };
+
+    restoreUploadedEvidence();
+    return () => {
+      isMounted = false;
+    };
+  }, [draftId]);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -69,6 +125,7 @@ export function MultiStepApplyWizard() {
     // Step 4
     evidencePlan: [] as string[],
     additionalNotes: "",
+    uploadedFiles: [] as UploadedEvidenceItem[],
     // Step 5
     acceptTerms: false,
     acceptGuidelines: false,
@@ -170,15 +227,36 @@ export function MultiStepApplyWizard() {
     setErrorMsg(null);
 
     try {
+      const submissionPayload = {
+        ...formData,
+        applicationId: draftId,
+        uploadedFiles: formData.uploadedFiles
+          .filter((f) => f.status === "uploaded")
+          .map((f) => ({
+            id: f.id,
+            name: f.name,
+            url: f.url,
+            key: f.key,
+            size: f.size,
+            type: f.type,
+            category: f.category,
+            provider: f.provider,
+          })),
+      };
+
       const res = await fetch("/api/applications", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(submissionPayload),
       });
 
       const data = await res.json();
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Submission failed. Please check your information.");
+      }
+
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("wbre_active_draft_app_id");
       }
 
       setSubmittedAppId(data.applicationNumber);
@@ -686,6 +764,22 @@ export function MultiStepApplyWizard() {
               className="w-full p-3 rounded-lg bg-wbre-deepNavy border border-wbre-primaryGold/25 text-white text-xs placeholder-slate-500 focus:ring-1 focus:ring-wbre-primaryGold"
             />
           </div>
+
+          {/* Evidence Upload Module */}
+          <EvidenceUploadBox
+            applicationId={draftId}
+            selectedEvidenceOptions={formData.evidencePlan}
+            uploadedFiles={formData.uploadedFiles}
+            onFilesChange={(files) => updateField("uploadedFiles", files)}
+            onApplicationIdAssigned={(assignedId) => {
+              if (assignedId && assignedId !== draftId) {
+                setDraftId(assignedId);
+                if (typeof window !== "undefined") {
+                  localStorage.setItem("wbre_active_draft_app_id", assignedId);
+                }
+              }
+            }}
+          />
         </div>
       )}
 
@@ -715,6 +809,17 @@ export function MultiStepApplyWizard() {
             <p className="text-slate-300">
               <span className="text-slate-400 font-semibold">Category:</span> {formData.categoryName}
             </p>
+            <p className="text-slate-300">
+              <span className="text-slate-400 font-semibold">Evidence Streams:</span> {formData.evidencePlan.length} method(s) selected
+            </p>
+            {formData.uploadedFiles.filter((f) => f.status === "uploaded").length > 0 && (
+              <p className="text-slate-300 flex items-center gap-1.5">
+                <span className="text-slate-400 font-semibold">Attached Evidence Files:</span>
+                <span className="text-wbre-lightGold font-semibold font-mono bg-wbre-royalNavy px-2 py-0.5 rounded border border-wbre-primaryGold/30">
+                  {formData.uploadedFiles.filter((f) => f.status === "uploaded").length} file(s) attached
+                </span>
+              </p>
+            )}
           </div>
 
           {/* Declarations Checkboxes */}

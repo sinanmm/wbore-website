@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -160,6 +160,10 @@ model Application {
   evidencePlan       String                    // JSON array string of planned evidence types
   additionalNotes    String?
   
+  // Evidence Relations
+  evidences          ApplicationEvidence[]
+  evidenceTypes      ApplicationEvidenceType[]
+  
   // Workflow Status
   status             String                    @default("SUBMITTED") // SUBMITTED, UNDER_INITIAL_REVIEW, GUIDELINES_ISSUED, ATTEMPT_SCHEDULED, EVIDENCE_SUBMITTED, UNDER_VERIFICATION, APPROVED, REJECTED, MORE_INFORMATION_REQUIRED
   assignedReviewerId String?
@@ -169,6 +173,32 @@ model Application {
   createdAt          DateTime                  @default(now())
   updatedAt          DateTime                  @updatedAt
   statusHistory      ApplicationStatusHistory[]
+}
+
+model ApplicationEvidence {
+  id               String       @id @default(cuid())
+  applicationId    String
+  application      Application  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  fileName         String
+  originalName     String
+  fileType         String
+  fileSize         Int
+  fileUrl          String
+  storageProvider  String       @default("LOCAL")
+  evidenceCategory String       @default("GENERAL")
+  uploadedBy       String       @default("APPLICANT")
+  status           String       @default("PENDING") // PENDING, APPROVED, REJECTED
+  rejectionReason  String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+}
+
+model ApplicationEvidenceType {
+  id            String       @id @default(cuid())
+  applicationId String
+  application   Application  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  type          String
+  createdAt     DateTime     @default(now())
 }
 
 model ApplicationStatusHistory {
