@@ -1,12 +1,9 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { Button } from "@/components/ui/Button";
-import { AlertTriangle, RotateCcw } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 
-export default function GlobalError({
+export default function Error({
   error,
   reset,
 }: {
@@ -14,7 +11,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("Application error:", error);
+    console.error("Application segment error:", error);
   }, [error]);
 
   return (

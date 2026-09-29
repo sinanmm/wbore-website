@@ -1,9 +1,20 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  outputFileTracingRoot: path.join(__dirname),
   images: {
-    domains: ["images.unsplash.com", "plus.unsplash.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "plus.unsplash.com",
+      },
+    ],
   },
 };
 
