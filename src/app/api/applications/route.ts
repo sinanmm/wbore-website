@@ -157,6 +157,24 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+    if (error.code === "P2021" || error.message?.includes("does not exist")) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Database tables have not been created yet. Please run 'npx prisma migrate deploy'.",
+        },
+        { status: 503 }
+      );
+    }
+    if (error.code === "P1001" || error.message?.includes("Can't reach database server")) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Database server is currently unreachable. Please check PostgreSQL connection.",
+        },
+        { status: 503 }
+      );
+    }
     return NextResponse.json(
       { success: false, error: "Internal server error occurred while processing application." },
       { status: 500 }

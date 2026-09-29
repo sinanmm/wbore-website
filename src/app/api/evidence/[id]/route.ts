@@ -49,6 +49,24 @@ export async function DELETE(
     });
   } catch (error: any) {
     console.error("Delete evidence error:", error);
+    if (error.code === "P2021" || error.message?.includes("does not exist")) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "The table 'public.ApplicationEvidence' does not exist. Please run 'npx prisma migrate deploy'.",
+        },
+        { status: 503 }
+      );
+    }
+    if (error.code === "P1001" || error.message?.includes("Can't reach database server")) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Database server is unreachable.",
+        },
+        { status: 503 }
+      );
+    }
     return NextResponse.json(
       {
         success: false,
@@ -101,6 +119,24 @@ export async function PATCH(
     });
   } catch (error: any) {
     console.error("Update evidence status error:", error);
+    if (error.code === "P2021" || error.message?.includes("does not exist")) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "The table 'public.ApplicationEvidence' does not exist. Please run 'npx prisma migrate deploy'.",
+        },
+        { status: 503 }
+      );
+    }
+    if (error.code === "P1001" || error.message?.includes("Can't reach database server")) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Database server is unreachable.",
+        },
+        { status: 503 }
+      );
+    }
     return NextResponse.json(
       {
         success: false,
